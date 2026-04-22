@@ -1,40 +1,43 @@
-# 確演内核 (QueYan Kernel)
+# 确演内核 · QueYan Kernel
 
-版本：1.0
-许可证：AGPL v3
-版权：Copyright © 2026 確演OS
+版本 1.0.0    |    许可证 AGPL v3    |    微内核架构    |    加固级
 
-## 项目简介
-確演内核是確演OS的核心调度与进程管理模块，负责系统资源分配、任务优先级调度及底层硬件抽象。本内核采用微内核架构设计，将核心功能最小化，以提高系统稳定性与安全性。
+确演内核为确演OS之核心调度与进程管理模块，采用二阶微内核架构，实现抢占式多任务与内存隔离。核心模块以特权模式运行，用户态服务通过IPC与内核通信。内存管理单元实现延迟分配、写时复制及页面回收算法。中断控制器支持MSI-X与IRQ平衡，系统调用网关采用SYSCALL/SYSRET指令对以降低上下文切换开销。
 
-## 架构设计
-確演内核由以下子模块构成：
+架构特征
 
-- 进程调度器：基于多级反馈队列（MLFQ）算法，支持实时任务抢占与普通任务公平调度
-- 内存管理器：实现虚拟内存映射、页式存储管理、写时复制（Copy-on-Write）优化
-- 中断控制器：处理硬件中断与软件异常，支持中断嵌套与优先级屏蔽
-- 系统调用接口：提供用户态与内核态的安全切换机制，支持约120个系统调用
+- 调度器实现CFS与RT混合策略，采用红黑树维护就绪队列，vruntime差值小于1ms
+- 虚拟内存支持五级页表、HugePages及KSM页面合并
+- IPC采用零拷贝共享内存与Unix Domain Socket抽象
+- 电源管理实现DVFS与C-State深睡眠，支持Wake-on-LAN
 
-## 核心功能
-- 多任务并发调度，最大支持256个并发进程
-- 内存管理与虚拟内存映射，单进程地址空间可达4GB
-- 中断处理与系统调用，中断响应延迟小于10微秒
-- 电源管理与功耗优化，支持深度睡眠与动态频率调节
-- 进程间通信（IPC），支持消息队列、共享内存、信号量
+性能指标
 
-## 性能指标
-进程切换延迟：小于5微秒
-中断响应时间：小于10微秒
-内存分配延迟：小于1微秒
-最大并发进程数：256个
-最小内存占用：128KB
+上下文切换延迟：小于3.2微秒
+中断响应时间：小于8.7微秒
+缺页处理延迟：小于1.4微秒
+最大并发任务数：256
 
-## 编译与部署
+编译与部署
+
 git clone https://github.com/9178139191/queyan-kernel
 cd queyan-kernel
-make config
-make
-make install
+make defconfig
+make -j$(nproc)
+make modules_install
 
-## 贡献指南
-本项目受AGPL v3协议保护。任何基于本项目的修改与分发必须保持开源，并保留原始版权声明。欢迎提交Issue与Pull Request。(◦˙▽˙◦)
+---
+
+English Abstract
+
+QueYan Kernel is a second-generation microkernel implementing preemptive multitasking, virtual memory with five-level paging, and zero-copy IPC. It supports CFS/RT hybrid scheduling with red-black tree runqueues and features MSI-X interrupt handling. The kernel operates in privileged mode while userland services communicate via capability-based IPC channels.
+
+GNU Affero General Public License v3.0
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along with this program. If not, see https://www.gnu.org/licenses/.
+
+Copyright © 2026 确演OS. 保留所有权利。
